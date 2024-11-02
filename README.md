@@ -4,6 +4,7 @@
 
 - [Proposal (HackMd)](https://hackmd.io/@xyf/BJudIwQZ1e)
 - [ziteboard](https://app.ziteboard.com/team/b9bacfbc-91af-45fe-9ce6-d74e538fe45f&lang=TW)
+- [Slide](https://www.canva.com/design/DAGVUDBWJcI/09AbL0vOT40OyPglCMbPKw/edit?utm_content=DAGVUDBWJcI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 
 ---
 
