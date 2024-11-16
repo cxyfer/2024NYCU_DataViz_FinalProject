@@ -45,5 +45,6 @@
 
 ## Dataset
 - [選舉資料庫](https://data.cec.gov.tw/選舉資料庫)
+- [2024ー第16任總統副總統選舉](https://db.cec.gov.tw/ElecTable/Election/ElecTickets?dataType=tickets&typeId=ELC&subjectId=P0&legisId=00&themeId=4d83db17c1707e3defae5dc4d4e9c800&dataLevel=N&prvCode=00&cityCode=000&areaCode=00&deptCode=000&liCode=0000)
 - [政府開放資料:各村里教育程度資料](https://scidm.nchc.org.tw/dataset/insight_classifiction_dataset_1_3/resource/9352e52d-016c-42b9-b343-b660ae04f476)
 - [綜稅綜合所得總額全國各縣市鄉鎮村里統計分析表 ｜ 政府資料開放平臺](https://data.gov.tw/dataset/103066)
