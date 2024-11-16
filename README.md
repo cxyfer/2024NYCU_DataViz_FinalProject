@@ -1,7 +1,11 @@
 # 常用網址
 - [Paper Presentation Slide](https://www.canva.com/design/DAGVUDBWJcI/09AbL0vOT40OyPglCMbPKw/edit?utm_content=DAGVUDBWJcI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
 - [學長姐的repo](https://github.com/ting0602/DV_FinalProject)
-- 
+
+## Previous Work
+
+- [LineBot-2021TWVoteStats](https://github.com/cxyfer/LineBot-2021TWVoteStats)
+
 # 2024NYCU_DataViz_FinalProject
 
 ## Discussion
