@@ -1,6 +1,7 @@
 # 常用網址
 - [Paper Presentation Slide](https://www.canva.com/design/DAGVUDBWJcI/09AbL0vOT40OyPglCMbPKw/edit?utm_content=DAGVUDBWJcI&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
-- [學長姐的repo](https://github.com/ting0602/DV_FinalProject)
+- [學長姐的 Repo](https://github.com/ting0602/DV_FinalProject)
+- [Google Meet](https://meet.google.com/vtf-ngzy-exm)
 
 ## Previous Work
 
