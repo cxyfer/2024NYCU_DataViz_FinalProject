@@ -1,0 +1,73 @@
+body {
+  /* Uncomment to use a background color */
+  /* background: lightblue; */
+}
+
+tr:nth-child(odd) {
+  background-color: #d6eeee;
+}
+
+#logo {
+  float: right;
+}
+
+#tooltip {
+  position: absolute;
+  opacity: 0;
+  border: 1px solid black;
+  background-color: white; /* Tooltip background color */
+}
+
+.county {
+  fill: #ebf0e4; /* Ensure the map fill color is set */
+  stroke: gray;
+  stroke-width: 0.1px;
+}
+
+.county:hover {
+  fill: lightgray; /* Hover effect for the map */
+}
+
+#container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#map-container {
+  flex: 1;
+  margin-right: 20px;
+  margin-top: 10px;
+}
+
+#scatterplot {
+  width: 600px;
+  height: 580px;
+}
+
+#map-container,
+#scatterplot-container {
+  flex: 1;
+  min-width: 300px;
+}
+
+#scatterplot-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 5px;
+}
+
+#controls {
+  position: absolute;
+}
+
+#task5-container {
+  display: flex;
+  flex-direction: row;
+}
+
+#row5 {
+  flex: 1;
+  padding: 10px;
+}

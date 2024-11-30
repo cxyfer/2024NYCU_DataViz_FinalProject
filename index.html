@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title>1130 taiwan ori map</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
+    <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
+    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <h1>Group 23 Final Project</h1>
+      <div id="controls" style="position: absolute">
+        <label for="xAttrSelect">X value:</label>
+        <select id="xAttrSelect"></select>
+
+        <br />
+        <label for="yAttrSelect">Y value:</label>
+        <select id="yAttrSelect"></select>
+
+        <br />
+        <label for="colorAttrSelect">Color:</label>
+        <select id="colorAttrSelect"></select>
+        <br />
+      </div>
+    </div>
+
+    <div id="container">
+      <div id="map-container">
+        <br />
+        <h3><br />Taiwan Map</h3>
+        <svg id="map" width="650" height="550"></svg>
+      </div>
+      <div id="scatterplot-container">
+        <h3><br /><br /></h3>
+        <svg id="scatterplot"></svg>
+      </div>
+    </div>
+
+    <script src="index.js" defer></script>
+  </body>
+</html>
