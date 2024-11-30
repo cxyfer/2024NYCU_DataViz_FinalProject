@@ -4,6 +4,20 @@
 - [討論用 Google Meet](https://meet.google.com/vtf-ngzy-exm)
 - [報告用 Google Meet](https://meet.google.com/ppz-erus-jsb)
 
+## To-do 1130~1207 
+##### 木木梟
+- [ ] 分層設色圖
+- [ ] tooltip 加上選舉資訊
+
+##### Jerry
+- [ ] 資料做到里
+- [ ] 改折線圖邏輯
+
+##### 華
+[clone private repo 教學](https://stackoverflow.com/questions/2505096/clone-a-private-repository-github)
+- [ ] 用 D3 畫四張圖表
+
+
 ## Previous Work
 
 - [LineBot-2021TWVoteStats](https://github.com/cxyfer/LineBot-2021TWVoteStats)
