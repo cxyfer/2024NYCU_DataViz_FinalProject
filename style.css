@@ -1,73 +1,105 @@
 body {
-  /* Uncomment to use a background color */
-  /* background: lightblue; */
+    /* Uncomment to use a background color */
+    /* background: lightblue; */
 }
 
 tr:nth-child(odd) {
-  background-color: #d6eeee;
+    background-color: #d6eeee;
 }
 
 #logo {
-  float: right;
+    float: right;
 }
 
 #tooltip {
-  position: absolute;
-  opacity: 0;
-  border: 1px solid black;
-  background-color: white; /* Tooltip background color */
+    position: absolute;
+    opacity: 0;
+    border: 1px solid black;
+    background-color: white;
+    /* Tooltip background color */
 }
 
 .county {
-  fill: #ebf0e4; /* Ensure the map fill color is set */
-  stroke: gray;
-  stroke-width: 0.1px;
+    fill: #ebf0e4;
+    /* Ensure the map fill color is set */
+    stroke: gray;
+    stroke-width: 0.1px;
 }
 
 .county:hover {
-  fill: lightgray; /* Hover effect for the map */
+    fill: lightgray;
+    /* Hover effect for the map */
 }
 
 #container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+#left-container {
+    flex: 1;
+}
+
+#right-container {
+    flex: 1;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    padding: 20px;
+    width: 900px;
+}
+
+.chart-item {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+    width: 400px;
+}
+
+.chart-item h3 {
+    margin: 0 0 10px 0;
+    text-align: center;
 }
 
 #map-container {
-  flex: 1;
-  margin-right: 20px;
-  margin-top: 10px;
+    flex: 1;
+    margin-right: 20px;
+    margin-top: 10px;
 }
 
 #scatterplot {
-  width: 600px;
-  height: 580px;
+    width: 600px;
+    height: 580px;
 }
 
 #map-container,
 #scatterplot-container {
-  flex: 1;
-  min-width: 300px;
+    flex: 1;
+    min-width: 300px;
 }
 
 #scatterplot-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-top: 5px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
 }
 
 #controls {
-  position: absolute;
+    position: absolute;
 }
 
 #task5-container {
-  display: flex;
-  flex-direction: row;
+    display: flex;
+    flex-direction: row;
 }
 
 #row5 {
-  flex: 1;
-  padding: 10px;
+    flex: 1;
+    padding: 10px;
 }
