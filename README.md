@@ -3,19 +3,14 @@
 - [學長姐的 Repo](https://github.com/ting0602/DV_FinalProject)
 - [討論用 Google Meet](https://meet.google.com/vtf-ngzy-exm)
 - [報告用 Google Meet](https://meet.google.com/ppz-erus-jsb)
+- [報告 overleaf](https://www.overleaf.com/project/6753f6b9eeca4cb3e7d00243)
 
-## To-do 1130~1207 
+## To-do 1207~1214
 ##### 木木梟
-- [ ] 分層設色圖
-- [ ] tooltip 加上選舉資訊
+- [ ] 把分層設色圖和圖表結合
 
-##### Jerry
-- [ ] 資料做到里
-- [ ] 改折線圖邏輯
-
-##### 華
-[clone private repo 教學](https://stackoverflow.com/questions/2505096/clone-a-private-repository-github)
-- [ ] 用 D3 畫四張圖表
+##### Jerry & 華
+- [ ] 分析三篇新聞，根據我們的結果對新聞的觀點進行分析
 
 
 ## Previous Work
