@@ -147,22 +147,23 @@ async function render() {
   const createLegend = (svg) => {
     const legend = svg.append('g')
       .attr('class', 'legend')
-      .attr('transform', 'translate(50, 400)');
+      .attr('transform', 'translate(30, 400)');
 
     Object.entries(colorScales).forEach(([candidate, scale], i) => {
       const maxRate = getMaxVoteRate(voteData, candidate);
       const legendGroup = legend.append('g')
-        .attr('transform', `translate(0, ${i * 50})`);
+        .attr('transform', `translate(0, ${i * 40})`);
 
       // Add candidate name
       legendGroup.append('text')
         .attr('x', 0)
-        .attr('y', 15)
+        .attr('y', 10)
+        .style('font-size', '14px')
         .text(candidate);
 
       // Add continuous color gradient
-      const gradientWidth = 150;
-      const gradientHeight = 15;
+      const gradientWidth = 80;
+      const gradientHeight = 10;
       
       // Create linear gradient definition
       const gradientId = `gradient-${candidate}`;
