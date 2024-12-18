@@ -1,4 +1,3 @@
-// 颜色配置
 const colors = {
     blue: "#4D99FF",
     green: "#00CC00",
@@ -6,12 +5,40 @@ const colors = {
 };
 
 const candidates = {
-    blue: "柯文哲",
+    blue: "侯友宜",
     green: "賴清德",
-    white: "侯友宜"
+    white: "柯文哲"
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Add chart selector
+    const chartSelector = document.createElement('select');
+    chartSelector.id = 'chartSelector';
+    chartSelector.innerHTML = `
+        <option value="cumulativeChart1">收入累積分布</option>
+        <option value="cumulativeChart2">教育程度累積分布</option>
+        <option value="barChart1">各收入等級投票分布</option>
+        <option value="barChart2">各教育程度投票分布</option>
+    `;
+    document.querySelector('#chartContainer').appendChild(chartSelector);
+    
+    // Add chart divs
+    const charts = ['cumulativeChart1', 'cumulativeChart2', 'barChart1', 'barChart2'];
+    charts.forEach(chartId => {
+        const div = document.createElement('div');
+        div.id = chartId;
+        div.style.display = chartId === 'cumulativeChart1' ? 'block' : 'none';
+        document.querySelector('#chartContainer').appendChild(div);
+    });
+
+    // Add change event listener
+    chartSelector.addEventListener('change', (e) => {
+        charts.forEach(chartId => {
+            document.querySelector(`#${chartId}`).style.display = 
+                chartId === e.target.value ? 'block' : 'none';
+        });
+    });
+
     loadElectionData();
 });
 
@@ -70,36 +97,43 @@ function processElectionData(data) {
         }
     };
 
+    console.log(processed.incomeCumulativeChart.data);
+
     return processed;
 }
 
 function calculateCumulativeData(sortedData, type) {
-    const totalPopulation = sortedData.length;
+    const totalDistricts = sortedData.length;
     let cumulativeBlue = 0;
     let cumulativeGreen = 0;
     let cumulativeWhite = 0;
     let cumulativeTotal = 0;
     
     return sortedData.map((district, index) => {
-        const percentage = ((index + 1) / totalPopulation) * 100;
+        const percentage = ((index + 1) / totalDistricts) * 100;
         
         // Accumulate votes for each candidate
-        cumulativeBlue += district.得票數["柯文哲"];
+        cumulativeBlue += district.得票數["侯友宜"];
         cumulativeGreen += district.得票數["賴清德"];
-        cumulativeWhite += district.得票數["侯友宜"];
+        cumulativeWhite += district.得票數["柯文哲"];
         cumulativeTotal += district.得票數["柯文哲"] + district.得票數["賴清德"] + district.得票數["侯友宜"];
         
         // Calculate average cumulative percentages
         return {
-            percentage: percentage.toFixed(1),
+            percentage: percentage.toFixed(4),
+            name: district.name,
             value: type === 'income' ? district.income.mean : district.education,
-            total: cumulativeTotal,
-            blueTotal: cumulativeBlue,
-            greenTotal: cumulativeGreen,
-            whiteTotal: cumulativeWhite,
-            blue: Math.round(cumulativeBlue / cumulativeTotal * 100),
-            green: Math.round(cumulativeGreen / cumulativeTotal * 100),
-            white: Math.round(cumulativeWhite / cumulativeTotal * 100),
+            income: district.income,
+            education: district.education,
+            cumulativeData: {
+                total: cumulativeTotal,
+                blueTotal: cumulativeBlue,
+                greenTotal: cumulativeGreen,
+                whiteTotal: cumulativeWhite,
+                bluePercentage: cumulativeBlue / cumulativeTotal * 100,
+                greenPercentage: cumulativeGreen / cumulativeTotal * 100,
+                whitePercentage: cumulativeWhite / cumulativeTotal * 100,
+            },
         };
     });
 }
@@ -116,9 +150,9 @@ function calculateDistributionData(sortedData, type) {
                 total: 0
             };
         }
-        acc[decile].blue += district.得票數["柯文哲"];
+        acc[decile].blue += district.得票數["侯友宜"];
         acc[decile].green += district.得票數["賴清德"];
-        acc[decile].white += district.得票數["侯友宜"];
+        acc[decile].white += district.得票數["柯文哲"];
         acc[decile].total += (district.得票數["柯文哲"] + district.得票數["賴清德"] + district.得票數["侯友宜"]);
         return acc;
     }, []).map(group => ({
@@ -134,16 +168,22 @@ function calculateDistributionData(sortedData, type) {
 }
 
 function drawCumulativeChart(selector, chartData) {
-    const margin = { top: 40, right: 80, bottom: 30, left: 40 }; // 增加右邊距來放置圖例
-    const width = 400 - margin.left - margin.right;
-    const height = 250 - margin.top - margin.bottom;
+    // Clear previous chart
+    d3.select(selector).html('');
+    
+    const margin = { top: 40, right: 80, bottom: 30, left: 60 };
+    const width = 800 - margin.left - margin.right;  // Increased width
+    const height = 600 - margin.top - margin.bottom; // Increased height
 
-    // 創建 SVG 容器
+    // Create SVG container
     const svg = d3.select(selector)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // 添加標題
+    // Add title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2)
@@ -158,7 +198,7 @@ function drawCumulativeChart(selector, chartData) {
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([0, 50])
+        .domain([20, 45])
         .range([height, 0]);
 
     // Add axes
@@ -169,10 +209,11 @@ function drawCumulativeChart(selector, chartData) {
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    // Create line generator
+    // Create line generator with curve interpolation
     const line = d3.line()
         .x(d => x(parseFloat(d.percentage)))
-        .y(d => y(d.value));
+        .y(d => y(d.value))
+        .curve(d3.curveMonotoneX);
 
     // Draw lines for each candidate
     ["blue", "green", "white"].forEach(color => {
@@ -181,7 +222,7 @@ function drawCumulativeChart(selector, chartData) {
             .attr("fill", "none")
             .attr("stroke", colors[color])
             .attr("stroke-width", 2)
-            .attr("d", line.y(d => y(d[color])));
+            .attr("d", line.y(d => y(d.cumulativeData[`${color}Percentage`])));
     });
 
     // Add legend
@@ -208,16 +249,22 @@ function drawCumulativeChart(selector, chartData) {
 }
 
 function drawBarChart(selector, chartData) {
-    const margin = { top: 40, right: 80, bottom: 50, left: 40 }; // 增加右邊距來放置圖例
-    const width = 400 - margin.left - margin.right;
-    const height = 250 - margin.top - margin.bottom;
+    // Clear previous chart
+    d3.select(selector).html('');
+    
+    const margin = { top: 40, right: 80, bottom: 50, left: 60 };
+    const width = 800 - margin.left - margin.right;  // Increased width
+    const height = 600 - margin.top - margin.bottom; // Increased height
 
-    // 創建 SVG 容器
+    // Create SVG container
     const svg = d3.select(selector)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // 添加標題
+    // Add title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2)
@@ -226,7 +273,7 @@ function drawBarChart(selector, chartData) {
         .style("font-weight", "bold")
         .text(chartData.name);
 
-    // 创建比例尺
+    // Create scales
     const x = d3.scaleBand()
         .domain(chartData.data.map(d => d.percentage))
         .range([0, width])
@@ -241,7 +288,7 @@ function drawBarChart(selector, chartData) {
         .domain([0, 50])
         .range([height, 0]);
 
-    // 添加坐标轴
+    // Add axes
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
@@ -254,7 +301,7 @@ function drawBarChart(selector, chartData) {
     svg.append("g")
         .call(d3.axisLeft(y));
 
-    // 绘制分组柱状图
+    // Draw grouped bar chart
     svg.append("g")
         .selectAll("g")
         .data(chartData.data)
@@ -271,7 +318,7 @@ function drawBarChart(selector, chartData) {
         .attr("height", d => height - y(d.value))
         .attr("fill", d => colors[d.key]);
 
-    // 添加图例
+    // Add legend
     const legend = svg.append("g")
         .attr("font-family", "sans-serif")
         .attr("font-size", 10)
