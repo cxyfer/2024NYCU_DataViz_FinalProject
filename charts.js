@@ -237,7 +237,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
 
     // console.log(recalculatedData);
 
-    const margin = { top: 30, right: 80, bottom: 30, left: 30 };
+    const margin = { top: 60, right: 80, bottom: 30, left: 30 };
     const width = 800 - margin.left - margin.right;
     const height = 600 - margin.top - margin.bottom;
 
@@ -249,12 +249,12 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Add title
+    // Add title with larger font
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2)
         .attr("text-anchor", "middle")
-        .style("font-size", "16px")
+        .style("font-size", "20px")
         .style("font-weight", "bold")
         .text(chartData.name);
 
@@ -267,13 +267,15 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .domain([min * 0.9, max * 1.1])
         .range([height, 0]);
 
-    // Add axes
+    // Add axes with larger font
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x))
+        .style("font-size", "12px");
 
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft(y))
+        .style("font-size", "12px");
 
     // Create line generator with curve interpolation
     const line = d3.line()
@@ -294,7 +296,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
     // Add legend
     const legend = svg.append("g")
         .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
+        .attr("font-size", "14px")
         .attr("text-anchor", "start")
         .selectAll("g")
         .data(["blue", "green", "white"])
@@ -326,7 +328,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .style("pointer-events", "none")
         .style("z-index", "1000");  // 確保 tooltip 顯示在最上層
 
-    // 添加一個透明的覆蓋層來捕捉滑鼠事件
+    // 添加一個透明的覆蓋層來捕���滑鼠事件
     const overlay = svg.append("rect")
         .attr("class", "overlay")
         .attr("width", width)
@@ -367,9 +369,15 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
                 平均所得: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
                 大學以上比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
                 <hr/>
+                <strong>累積得票率：</strong><br/>
                 <span style="color: ${colors.blue}">${candidates.blue}</span>: ${d.cumulativeData.bluePercentage.toFixed(2)}%<br/>
                 <span style="color: ${colors.green}">${candidates.green}</span>: ${d.cumulativeData.greenPercentage.toFixed(2)}%<br/>
-                <span style="color: ${colors.white}">${candidates.white}</span>: ${d.cumulativeData.whitePercentage.toFixed(2)}%
+                <span style="color: ${colors.white}">${candidates.white}</span>: ${d.cumulativeData.whitePercentage.toFixed(2)}%<br/>
+                <hr/>
+                <strong>該地區得票率：</strong><br/>
+                <span style="color: ${colors.blue}">${candidates.blue}</span>: ${(d.originalData.blue / d.originalData.total * 100).toFixed(2)}%<br/>
+                <span style="color: ${colors.green}">${candidates.green}</span>: ${(d.originalData.green / d.originalData.total * 100).toFixed(2)}%<br/>
+                <span style="color: ${colors.white}">${candidates.white}</span>: ${(d.originalData.white / d.originalData.total * 100).toFixed(2)}%
             `;
             
             // 取得視窗尺寸
@@ -398,7 +406,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
                 top = top - tooltipHeight - 20;
             }
             
-            // 設定 tooltip 位置
+            // 設定 tooltip 置
             tooltip
                 .style("left", `${left}px`)
                 .style("top", `${top}px`)
@@ -415,7 +423,7 @@ function drawBarChart(selector, chartData) {
     // Clear previous chart
     d3.select(selector).html('');
     
-    const margin = { top: 40, right: 80, bottom: 50, left: 60 };
+    const margin = { top: 60, right: 80, bottom: 30, left: 30 };
     const width = 800 - margin.left - margin.right;  // Increased width
     const height = 600 - margin.top - margin.bottom; // Increased height
 
@@ -427,12 +435,12 @@ function drawBarChart(selector, chartData) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Add title
+    // Add title with larger font
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2)
         .attr("text-anchor", "middle")
-        .style("font-size", "16px")
+        .style("font-size", "20px")
         .style("font-weight", "bold")
         .text(chartData.name);
 
@@ -451,18 +459,20 @@ function drawBarChart(selector, chartData) {
         .domain([0, 50])
         .range([height, 0]);
 
-    // Add axes
+    // Add axes with larger font
     svg.append("g")
         .attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x))
         .selectAll("text")
+        .style("font-size", "12px")
         .style("text-anchor", "end")
         .attr("transform", "rotate(-45)")
         .attr("dx", "-0.8em")
         .attr("dy", "0.15em");
 
     svg.append("g")
-        .call(d3.axisLeft(y));
+        .call(d3.axisLeft(y))
+        .style("font-size", "12px");
 
     // Draw grouped bar chart
     svg.append("g")
@@ -484,7 +494,7 @@ function drawBarChart(selector, chartData) {
     // Add legend
     const legend = svg.append("g")
         .attr("font-family", "sans-serif")
-        .attr("font-size", 10)
+        .attr("font-size", "14px")
         .attr("text-anchor", "start")
         .selectAll("g")
         .data(["blue", "green", "white"])
