@@ -20,29 +20,66 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#chartContainer').appendChild(div);
     });
 
-    // Add change event listener
+    // Add change event listener for chart selector
     document.querySelector('#chartSelector').addEventListener('change', (e) => {
+        const selectedChart = e.target.value;
         charts.forEach(chartId => {
             document.querySelector(`#${chartId}`).style.display = 
-                chartId === e.target.value ? 'block' : 'none';
+                chartId === selectedChart ? 'block' : 'none';
         });
+        
+        // Show/hide range inputs based on chart type
+        const rangeInputs = document.querySelector('#rangeInputs');
+        rangeInputs.style.display = selectedChart.includes('cumulative') ? 'block' : 'none';
+        
+        // Reset range inputs to default values
+        if (selectedChart.includes('cumulative')) {
+            document.querySelector('#startRange').value = 0;
+            document.querySelector('#endRange').value = 100;
+            
+            // Redraw the chart with reset range
+            const chartData = selectedChart === 'cumulativeChart1' ? 
+                processedDataGlobal.incomeCumulativeChart :
+                processedDataGlobal.educationCumulativeChart;
+            drawCumulativeChart(`#${selectedChart}`, chartData, 0, 100);
+        }
+    });
+
+    document.querySelector('#rangeInputs').style.display = 'block';
+
+    // Add click event listener for range update button
+    document.querySelector('#updateRange').addEventListener('click', () => {
+        const start = parseInt(document.querySelector('#startRange').value);
+        const end = parseInt(document.querySelector('#endRange').value);
+        const selectedChart = document.querySelector('#chartSelector').value;
+        
+        // Get the current chart data
+        const chartData = selectedChart === 'cumulativeChart1' ? 
+            processedDataGlobal.incomeCumulativeChart :
+            processedDataGlobal.educationCumulativeChart;
+        
+        // Redraw the chart with new range
+        drawCumulativeChart(`#${selectedChart}`, chartData, start, end);
     });
 
     loadElectionData();
 });
+
+// Add global variable to store processed data
+let processedDataGlobal;
 
 async function loadElectionData() {
     try {
         const response = await fetch('data/data.json');
         const data = await response.json();
         
-        const processedData = processElectionData(data);
+        processedDataGlobal = processElectionData(data);
         
         // 使用處理後的資料繪製圖表
-        drawCumulativeChart("#cumulativeChart1", processedData.incomeCumulativeChart);
-        drawCumulativeChart("#cumulativeChart2", processedData.educationCumulativeChart);
-        drawBarChart("#barChart1", processedData.incomeDistributionChart);
-        drawBarChart("#barChart2", processedData.educationDistributionChart);
+        drawCumulativeChart("#cumulativeChart1", processedDataGlobal.incomeCumulativeChart);
+        drawCumulativeChart("#cumulativeChart2", processedDataGlobal.educationCumulativeChart);
+        drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
+        drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
 
     } catch (error) {
         console.error('Error loading election data:', error);
@@ -85,9 +122,7 @@ function processElectionData(data) {
             data: calculateDistributionData(sortedByEducation, 'education')
         }
     };
-
-    console.log(processed.incomeCumulativeChart.data);
-
+    
     return processed;
 }
 
@@ -114,6 +149,12 @@ function calculateCumulativeData(sortedData, type) {
             value: type === 'income' ? district.income.mean : district.education,
             income: district.income,
             education: district.education,
+            originalData: {
+                blue: district.得票數["侯友宜"],
+                green: district.得票數["賴清德"],
+                white: district.得票數["柯文哲"],
+                total: district.得票數["柯文哲"] + district.得票數["賴清德"] + district.得票數["侯友宜"],
+            },
             cumulativeData: {
                 total: cumulativeTotal,
                 blueTotal: cumulativeBlue,
@@ -150,9 +191,9 @@ function calculateDistributionData(sortedData, type) {
         blueTotal: group.blue,
         greenTotal: group.green,
         whiteTotal: group.white,
-        blue: Math.round((group.blue / group.total) * 100),
-        green: Math.round((group.green / group.total) * 100),
-        white: Math.round((group.white / group.total) * 100),
+        blue: (group.blue / group.total) * 100,
+        green: (group.green / group.total) * 100,
+        white: (group.white / group.total) * 100,
     }))
 }
 
@@ -160,6 +201,42 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
     // Clear previous chart
     d3.select(selector).html('');
     
+    // Filter data based on start and end percentages
+    const filteredData = chartData.data.filter(d => {
+        const percentage = parseFloat(d.percentage);
+        return percentage >= start && percentage <= end;
+    });
+
+    // Recalculate cumulative percentages for filtered data
+    let min = 100, max = 0;
+    let cumulativeBlue = 0;
+    let cumulativeGreen = 0;
+    let cumulativeWhite = 0;
+    let cumulativeTotal = 0;
+    
+    const recalculatedData = filteredData.map(d => {
+        // Add current district's votes
+        cumulativeBlue += d.originalData.blue;
+        cumulativeGreen += d.originalData.green;
+        cumulativeWhite += d.originalData.white;
+        cumulativeTotal += d.originalData.total;
+
+        max = Math.max(max, cumulativeBlue / cumulativeTotal * 100, cumulativeGreen / cumulativeTotal * 100, cumulativeWhite / cumulativeTotal * 100);
+        min = Math.min(min, cumulativeBlue / cumulativeTotal * 100, cumulativeGreen / cumulativeTotal * 100, cumulativeWhite / cumulativeTotal * 100);
+
+        return {
+            ...d,
+            cumulativeData: {
+                ...d.cumulativeData,
+                bluePercentage: (cumulativeBlue / cumulativeTotal) * 100,
+                greenPercentage: (cumulativeGreen / cumulativeTotal) * 100,
+                whitePercentage: (cumulativeWhite / cumulativeTotal) * 100,
+            }
+        };
+    });
+
+    // console.log(recalculatedData);
+
     const margin = { top: 30, right: 80, bottom: 30, left: 30 };
     const width = 800 - margin.left - margin.right;
     const height = 600 - margin.top - margin.bottom;
@@ -187,7 +264,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([20, 45])
+        .domain([min * 0.9, max * 1.1])
         .range([height, 0]);
 
     // Add axes
@@ -207,7 +284,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
     // Draw lines for each candidate
     ["blue", "green", "white"].forEach(color => {
         svg.append("path")
-            .datum(chartData.data)
+            .datum(recalculatedData)  // Use recalculated data
             .attr("fill", "none")
             .attr("stroke", colors[color])
             .attr("stroke-width", 2)
@@ -266,15 +343,15 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .style("stroke-dasharray", "3,3")
         .style("opacity", 0);
 
-    // 在覆蓋層上添加鼠標移動事件
+    // 在覆蓋層上添加標移動事件
     overlay.on("mousemove", function() {
         const mouseX = d3.mouse(this)[0];
         const xValue = x.invert(mouseX);
         
         // 找出最接近的數據點
         const bisect = d3.bisector(d => parseFloat(d.percentage)).left;
-        const index = bisect(chartData.data, xValue);
-        const d = chartData.data[index];
+        const index = bisect(recalculatedData, xValue);  // Use recalculated data
+        const d = recalculatedData[index];
         
         if (d) {
             // 更新輔助線位置

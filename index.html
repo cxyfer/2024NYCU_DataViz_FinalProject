@@ -16,12 +16,28 @@
 
     <div id="container">
         <div id="left-container">
-            <select id="chartSelector">
-                <option value="cumulativeChart1">收入累積分布</option>
-                <option value="cumulativeChart2">教育程度累積分布</option>
-                <option value="barChart1">各收入等級投票分布</option>
-                <option value="barChart2">各教育程度投票分布</option>
-            </select>
+            <div id="controller-container">
+                <div class="selector-container">
+                    <select id="chartSelector">
+                        <option value="cumulativeChart1">收入累積分布</option>
+                        <option value="cumulativeChart2">教育程度累積分布</option>
+                        <option value="barChart1">各收入等級投票分布</option>
+                        <option value="barChart2">各教育程度投票分布</option>
+                    </select>
+                </div>
+                <div id="rangeInputs" style="display: none;">
+                    <div class="range-controls">
+                        <div class="range-input">
+                            <label>起始百分比：<input type="number" id="startRange" min="0" max="100" value="0"></label>
+                        </div>
+                        <div class="range-input">
+                            <label>結束百分比：<input type="number" id="endRange" min="0" max="100" value="100"></label>
+                        </div>
+                        <button id="updateRange">更新</button>
+                    </div>
+                </div>
+            </div>
+            
             <div id="map-container">
                 <svg id="map" width="600" height="600"></svg>
             </div>
