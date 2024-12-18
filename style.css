@@ -42,7 +42,7 @@ tr:nth-child(odd) {
 }
 
 #right-container {
-    flex: 1;
+    flex: 2;
 }
 
 .charts-grid {
@@ -70,24 +70,6 @@ tr:nth-child(odd) {
     flex: 1;
     margin-right: 20px;
     margin-top: 10px;
-}
-
-#scatterplot {
-    width: 600px;
-    height: 580px;
-}
-
-#map-container,
-#scatterplot-container {
-    flex: 1;
-    min-width: 300px;
-}
-
-#scatterplot-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-top: 5px;
 }
 
 #controls {

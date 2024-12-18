@@ -1,7 +1,7 @@
 const colors = {
     blue: "#4D99FF",
     green: "#00CC00",
-    white: "#CCCCCC"
+    white: "red"
 };
 
 const candidates = {
@@ -11,17 +11,6 @@ const candidates = {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Add chart selector
-    const chartSelector = document.createElement('select');
-    chartSelector.id = 'chartSelector';
-    chartSelector.innerHTML = `
-        <option value="cumulativeChart1">收入累積分布</option>
-        <option value="cumulativeChart2">教育程度累積分布</option>
-        <option value="barChart1">各收入等級投票分布</option>
-        <option value="barChart2">各教育程度投票分布</option>
-    `;
-    document.querySelector('#chartContainer').appendChild(chartSelector);
-    
     // Add chart divs
     const charts = ['cumulativeChart1', 'cumulativeChart2', 'barChart1', 'barChart2'];
     charts.forEach(chartId => {
@@ -32,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Add change event listener
-    chartSelector.addEventListener('change', (e) => {
+    document.querySelector('#chartSelector').addEventListener('change', (e) => {
         charts.forEach(chartId => {
             document.querySelector(`#${chartId}`).style.display = 
                 chartId === e.target.value ? 'block' : 'none';
@@ -246,6 +235,106 @@ function drawCumulativeChart(selector, chartData) {
         .attr("y", 9.5)
         .attr("dy", "0.32em")
         .text(d => candidates[d]);
+
+    // Add tooltip div
+    const tooltip = d3.select(selector)
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0)
+        .style("position", "absolute")
+        .style("background-color", "white")
+        .style("border", "1px solid #ddd")
+        .style("border-radius", "4px")
+        .style("padding", "8px")
+        .style("pointer-events", "none")
+        .style("z-index", "1000");  // 確保 tooltip 顯示在最上層
+
+    // 添加一個透明的覆蓋層來捕捉滑鼠事件
+    const overlay = svg.append("rect")
+        .attr("class", "overlay")
+        .attr("width", width)
+        .attr("height", height)
+        .style("fill", "none")
+        .style("pointer-events", "all");
+
+    // 添加輔助線
+    const guideline = svg.append("line")
+        .attr("class", "guideline")
+        .attr("y1", 0)
+        .attr("y2", height)
+        .style("stroke", "#999")
+        .style("stroke-dasharray", "3,3")
+        .style("opacity", 0);
+
+    // 在覆蓋層上添加鼠標移動事件
+    overlay.on("mousemove", function() {
+        const mouseX = d3.mouse(this)[0];
+        const xValue = x.invert(mouseX);
+        
+        // 找出最接近的數據點
+        const bisect = d3.bisector(d => parseFloat(d.percentage)).left;
+        const index = bisect(chartData.data, xValue);
+        const d = chartData.data[index];
+        
+        if (d) {
+            // 更新輔助線位置
+            guideline
+                .attr("x1", x(parseFloat(d.percentage)))
+                .attr("x2", x(parseFloat(d.percentage)))
+                .style("opacity", 1);
+
+            // 更新 tooltip
+            const tooltipContent = `
+                <strong>${d.name}</strong><br/>
+                累積百分比: ${d.percentage}%<br/>
+                平均所得: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
+                大學以上比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
+                <hr/>
+                <span style="color: ${colors.blue}">${candidates.blue}</span>: ${d.cumulativeData.bluePercentage.toFixed(2)}%<br/>
+                <span style="color: ${colors.green}">${candidates.green}</span>: ${d.cumulativeData.greenPercentage.toFixed(2)}%<br/>
+                <span style="color: ${colors.white}">${candidates.white}</span>: ${d.cumulativeData.whitePercentage.toFixed(2)}%
+            `;
+            
+            // 取得視窗尺寸
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            
+            // 取得 tooltip 的尺寸
+            tooltip.html(tooltipContent);
+            const tooltipNode = tooltip.node();
+            const tooltipWidth = tooltipNode.offsetWidth;
+            const tooltipHeight = tooltipNode.offsetHeight;
+            
+            // 計算 tooltip 位置
+            const svgNode = svg.node().parentNode;
+            const svgRect = svgNode.getBoundingClientRect();
+            let left = svgRect.left + x(parseFloat(d.percentage)) + margin.left;
+            let top = d3.event.pageY;
+            
+            // 確保 tooltip 不會超出右側邊界
+            if (left + tooltipWidth > windowWidth) {
+                left = left - tooltipWidth - 20;
+            }
+            
+            // 確保 tooltip 不會超出底部邊界
+            if (top + tooltipHeight > windowHeight) {
+                top = top - tooltipHeight - 20;
+            }
+            
+            // 設定 tooltip 位置
+            tooltip
+                .style("left", `${left}px`)
+                .style("top", `${top}px`)
+                .style("opacity", 1);
+        }
+    })
+    .on("mouseleave", function() {
+        guideline.style("opacity", 0);
+        tooltip.style("opacity", 0);
+    });
+
+    // 移除之前的點擊事件處理和圓點
+    // ... rest of the code ...
 }
 
 function drawBarChart(selector, chartData) {
