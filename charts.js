@@ -156,13 +156,13 @@ function calculateDistributionData(sortedData, type) {
     }))
 }
 
-function drawCumulativeChart(selector, chartData) {
+function drawCumulativeChart(selector, chartData, start=0, end=100) {
     // Clear previous chart
     d3.select(selector).html('');
     
-    const margin = { top: 40, right: 80, bottom: 30, left: 60 };
-    const width = 800 - margin.left - margin.right;  // Increased width
-    const height = 600 - margin.top - margin.bottom; // Increased height
+    const margin = { top: 30, right: 80, bottom: 30, left: 30 };
+    const width = 800 - margin.left - margin.right;
+    const height = 600 - margin.top - margin.bottom;
 
     // Create SVG container
     const svg = d3.select(selector)
@@ -183,7 +183,7 @@ function drawCumulativeChart(selector, chartData) {
 
     // Create scales
     const x = d3.scaleLinear()
-        .domain([0, 100])  // Percentage from 0 to 100
+        .domain([start, end])  // Percentage from 0 to 100
         .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -332,9 +332,6 @@ function drawCumulativeChart(selector, chartData) {
         guideline.style("opacity", 0);
         tooltip.style("opacity", 0);
     });
-
-    // 移除之前的點擊事件處理和圓點
-    // ... rest of the code ...
 }
 
 function drawBarChart(selector, chartData) {

@@ -5,8 +5,8 @@
 d3.select('#map-container')
   .select('svg')
   .append('rect')
-  .attr('width', 1650)
-  .attr('height', 550)
+  .attr('width', 600)
+  .attr('height', 600)
   .attr('fill', 'lightblue');
 
 // Map on the left
@@ -14,8 +14,8 @@ var svg = d3.select('#map-container').select('svg');
 
 const g = svg
   .append('g')
-  .attr('width', 650)
-  .attr('height', 550)
+  .attr('width', 600)
+  .attr('height', 600)
   .attr('id', 'map');
 
 svg.call(
@@ -27,41 +27,14 @@ svg.call(
 // Using Mercator projection
 var projection = d3
   .geoMercator()
-  .center([123.5, 23.5])
-  .scale(5500);
+  .center([121.75, 23.75])
+  .scale(7500);
 var pathGenerator = d3.geoPath().projection(projection);
 
 d3.select('body')
   .append('div')
   .attr('id', 'tooltip')
   .attr('style', 'position: absolute; opacity: 0;');
-
-// Scatter Plot on the right
-const scatterWidth = 600;
-const scatterHeight = 580;
-const scatterMargin = {
-  top: 20,
-  right: 30,
-  bottom: 35,
-  left: 50,
-};
-
-let scatterSvg = d3
-  .select('#scatterplot-container')
-  .select('svg');
-
-if (scatterSvg.empty()) {
-  scatterSvg = d3
-    .select('#scatterplot-container')
-    .append('svg')
-    .attr('id', 'scatterplot')
-    .attr('width', scatterWidth)
-    .attr('height', scatterHeight);
-} else {
-  scatterSvg
-    .attr('width', scatterWidth)
-    .attr('height', scatterHeight);
-}
 
 let xScale, yScale, xAxis, yAxis;
 
