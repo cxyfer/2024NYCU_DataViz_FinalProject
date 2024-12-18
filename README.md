@@ -5,13 +5,23 @@
 - [報告用 Google Meet](https://meet.google.com/ppz-erus-jsb)
 - [報告 overleaf](https://www.overleaf.com/project/6753f6b9eeca4cb3e7d00243)
 
-## To-do 1207~1214
+## TO-DO
+
+### 1207~1214
+
 ##### 木木梟
-- [ ] 把分層設色圖和圖表結合
+- [x] 把分層設色圖和圖表結合
 
 ##### Jerry & 華
 - [ ] 分析三篇新聞，根據我們的結果對新聞的觀點進行分析
 
+### 1218
+
+##### 木木梟
+- [ ] Tooltip 加上累積人數
+- [ ] 加上累積人數圖 (備選:斜率?)
+- [ ] 柱狀圖分組數量
+- [ ] Future works 累積數量熱點圖 (滑桿)
 
 ## Previous Work
 
