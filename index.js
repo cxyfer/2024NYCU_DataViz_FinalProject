@@ -506,7 +506,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
               積百分比: ${d.percentage}%<br/>
               所得中位數: ${(d.income.median / 10).toFixed(2)}萬元<br/>
               所得平均數: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
-              學以上人口比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
+              大學以上人口比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
               <hr/>
               <strong>該地區得票率：</strong><br/>
               <span style="color: ${colors.blue}">${candidates.blue}</span>: ${(d.originalData.blue / d.originalData.total * 100).toFixed(2)}%<br/>
