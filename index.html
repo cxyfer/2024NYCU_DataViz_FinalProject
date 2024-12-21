@@ -7,6 +7,8 @@
     <script src="https://unpkg.com/d3@5.6.0/dist/d3.min.js"></script>
     <script src="https://unpkg.com/topojson@3.0.2/dist/topojson.js"></script>
     <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.3/distribute/nouislider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/nouislider@14.6.3/distribute/nouislider.min.js"></script>
 </head>
 
 <body>
@@ -28,12 +30,9 @@
                 <div id="rangeInputs" style="display: none;">
                     <div class="range-controls">
                         <div class="range-input">
-                            <label>起始百分比：<input type="number" id="startRange" min="0" max="100" value="0"></label>
+                            <label>百分比範圍：<span id="rangeValues"></span></label>
+                            <div id="percentageRange"></div>
                         </div>
-                        <div class="range-input">
-                            <label>結束百分比：<input type="number" id="endRange" min="0" max="100" value="100"></label>
-                        </div>
-                        <button id="updateRange">更新</button>
                     </div>
                 </div>
                 <div id="groupsInputs" style="display: none;">
