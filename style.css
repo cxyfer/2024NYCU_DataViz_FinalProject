@@ -138,3 +138,8 @@ tr:nth-child(odd) {
     border: 1px solid #ccc;
     background-color: white;
 }
+
+#percentageRange {
+    width: 300px;
+}
+
