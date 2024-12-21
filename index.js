@@ -47,8 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Reset range inputs to default values
       if (selectedChart.includes('cumulative')) {
-          document.querySelector('#startRange').value = 0;
-          document.querySelector('#endRange').value = 100;
+          // 使用 noUiSlider API 重設滑桿值
+          const slider = document.getElementById('percentageRange');
+          if (slider.noUiSlider) {
+              slider.noUiSlider.set([0, 100]);
+          }
           
           // Update county votes with full range for the selected chart type
           processedDataGlobal.countyVotes = calculateCountyVotes(
@@ -82,53 +85,84 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Add click event listener for range update button
-  document.querySelector('#updateRange').addEventListener('click', () => {
-      const start = parseInt(document.querySelector('#startRange').value);
-      const end = parseInt(document.querySelector('#endRange').value);
-      const selectedChart = document.querySelector('#chartSelector').value;
-      
-      // Update current range
-      currentMapRange = { start, end };
-      
-      // Update county votes with new range
-      if (selectedChart === 'cumulativeChart1') {
-          processedDataGlobal.countyVotes = calculateCountyVotes(sortedByIncome, start, end);
-      } else {
-          processedDataGlobal.countyVotes = calculateCountyVotes(sortedByEducation, start, end);
-      }
-      
-      // Redraw chart
-      const chartData = selectedChart === 'cumulativeChart1' ? 
-          processedDataGlobal.incomeCumulativeChart :
-          processedDataGlobal.educationCumulativeChart;
-      
-      drawCumulativeChart(`#${selectedChart}`, chartData, start, end);
-      
-      // Redraw map with new data
-      render(processedDataGlobal.mapData);
-  });
-
-  // Add click event listener for range update button
   document.querySelector('#updateGroups').addEventListener('click', () => {
-      const groupNum = parseInt(document.querySelector('#groupsNum').value);
-      const selectedChart = document.querySelector('#chartSelector').value;
-      if (selectedChart === 'barChart1') {
-          processedDataGlobal.incomeDistributionChart.data = calculateDistributionData(sortedByIncome, groupNum);
-          drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
-      }
-      else if (selectedChart === 'barChart2') {
-          processedDataGlobal.educationDistributionChart.data = calculateDistributionData(sortedByEducation, groupNum);
-          drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
-      }
+    const groupNum = parseInt(document.querySelector('#groupsNum').value);
+    const selectedChart = document.querySelector('#chartSelector').value;
+    if (selectedChart === 'barChart1') {
+        processedDataGlobal.incomeDistributionChart.data = calculateDistributionData(sortedByIncome, groupNum);
+        drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
+    }
+    else if (selectedChart === 'barChart2') {
+        processedDataGlobal.educationDistributionChart.data = calculateDistributionData(sortedByEducation, groupNum);
+        drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
+    }
   });
 
   loadElectionData();
 });
 
-// Add global variable to store processed data
+// 確保這些全域變數在檔案開頭就被宣告
 let processedDataGlobal;
 let sortedByIncome, sortedByEducation;
 let currentMapRange = { start: 0, end: 100 }; // Add this to track the current range
+
+function initializeRangeSlider() {
+  const slider = document.getElementById('percentageRange');
+  const rangeValues = document.getElementById('rangeValues');
+
+  noUiSlider.create(slider, {
+      start: [0, 100],
+      connect: true,
+      range: {
+          'min': 0,
+          'max': 100
+      },
+      step: 1,
+      tooltips: false,
+  });
+
+  // 更新顯示的數值並觸發視覺化更新
+  slider.noUiSlider.on('update', function (values) {
+      const start = Math.round(values[0]);
+      const end = Math.round(values[1]);
+      rangeValues.textContent = `${start}% - ${end}%`;
+      
+      // 確保所有必要的變數都已定義
+      if (!processedDataGlobal || !sortedByIncome || !sortedByEducation) {
+          console.warn('Data not yet loaded');
+          return;
+      }
+      
+      // 更新當前範圍
+      currentMapRange = { start, end };
+      
+      // 取得目前選擇的圖表
+      const selectedChart = document.querySelector('#chartSelector').value;
+      
+      try {
+          // 更新 county votes
+          if (selectedChart === 'cumulativeChart1') {
+              processedDataGlobal.countyVotes = calculateCountyVotes(sortedByIncome, start, end);
+          } else {
+              processedDataGlobal.countyVotes = calculateCountyVotes(sortedByEducation, start, end);
+          }
+          
+          // 重繪圖表
+          const chartData = selectedChart === 'cumulativeChart1' ? 
+              processedDataGlobal.incomeCumulativeChart :
+              processedDataGlobal.educationCumulativeChart;
+          
+          drawCumulativeChart(`#${selectedChart}`, chartData, start, end);
+          
+          // 重繪地圖
+          if (processedDataGlobal.mapData) {
+              render(processedDataGlobal.mapData);
+          }
+      } catch (error) {
+          console.error('Error updating visualization:', error);
+      }
+  });
+}
 
 function calculateCountyVotes(sortedDistricts, start = 0, end = 100) {
     if (!sortedDistricts || !Array.isArray(sortedDistricts)) {
@@ -200,10 +234,13 @@ async function loadElectionData() {
         const data = await response.json();
         
         processedDataGlobal = processElectionData(data);
-        processedDataGlobal.mapData = mapData; // 保存 mapData 以供後續使用
+        processedDataGlobal.mapData = mapData;
         
         // Calculate county-level aggregates from sorted districts
         processedDataGlobal.countyVotes = calculateCountyVotes(sortedByIncome, 0, 100);
+        
+        // 在資料載入完成後初始化滑桿
+        initializeRangeSlider();
         
         // Draw initial charts
         drawCumulativeChart("#cumulativeChart1", processedDataGlobal.incomeCumulativeChart);
