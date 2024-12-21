@@ -20,6 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#chartContainer').appendChild(div);
     });
 
+    document.querySelector('#rangeInputs').style.display = 'block';
+
     // Add change event listener for chart selector
     document.querySelector('#chartSelector').addEventListener('change', (e) => {
         const selectedChart = e.target.value;
@@ -32,6 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const rangeInputs = document.querySelector('#rangeInputs');
         rangeInputs.style.display = selectedChart.includes('cumulative') ? 'block' : 'none';
         
+        // Show/hide range inputs based on chart type
+        const groupsInputs = document.querySelector('#groupsInputs');
+        groupsInputs.style.display = selectedChart.includes('barChart') ? 'block' : 'none';
+
         // Reset range inputs to default values
         if (selectedChart.includes('cumulative')) {
             document.querySelector('#startRange').value = 0;
@@ -43,9 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 processedDataGlobal.educationCumulativeChart;
             drawCumulativeChart(`#${selectedChart}`, chartData, 0, 100);
         }
-    });
 
-    document.querySelector('#rangeInputs').style.display = 'block';
+        // Reset groups inputs to default values
+        if (selectedChart.includes('barChart')) {
+            document.querySelector('#groupsNum').value = 10;
+            if (selectedChart === 'barChart1') {
+                processedDataGlobal.incomeDistributionChart.data = calculateDistributionData(sortedByIncome, 10);
+                drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
+            }
+            else if (selectedChart === 'barChart2') {
+                processedDataGlobal.educationDistributionChart.data = calculateDistributionData(sortedByEducation, 10);
+                drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
+            }
+        }
+    });
 
     // Add click event listener for range update button
     document.querySelector('#updateRange').addEventListener('click', () => {
@@ -62,11 +79,26 @@ document.addEventListener('DOMContentLoaded', () => {
         drawCumulativeChart(`#${selectedChart}`, chartData, start, end);
     });
 
+    // Add click event listener for range update button
+    document.querySelector('#updateGroups').addEventListener('click', () => {
+        const groupNum = parseInt(document.querySelector('#groupsNum').value);
+        const selectedChart = document.querySelector('#chartSelector').value;
+        if (selectedChart === 'barChart1') {
+            processedDataGlobal.incomeDistributionChart.data = calculateDistributionData(sortedByIncome, groupNum);
+            drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
+        }
+        else if (selectedChart === 'barChart2') {
+            processedDataGlobal.educationDistributionChart.data = calculateDistributionData(sortedByEducation, groupNum);
+            drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
+        }
+    });
+
     loadElectionData();
 });
 
 // Add global variable to store processed data
 let processedDataGlobal;
+let sortedByIncome, sortedByEducation;
 
 async function loadElectionData() {
     try {
@@ -92,7 +124,7 @@ function processElectionData(data) {
     const validDistricts = Object.values(data).filter(district => 
         district && 
         district.income && 
-        typeof district.income.mean === 'number' &&
+        typeof district.income.median === 'number' &&
         district.education &&
         district.得票率 &&
         district.得票率["柯文哲"] &&
@@ -101,8 +133,8 @@ function processElectionData(data) {
     );
 
     // Sort districts by income and education
-    const sortedByIncome = [...validDistricts].sort((a, b) => b.income.mean - a.income.mean);
-    const sortedByEducation = [...validDistricts].sort((a, b) => b.education.rate - a.education.rate);
+    sortedByIncome = [...validDistricts].sort((a, b) => b.income.median - a.income.median);
+    sortedByEducation = [...validDistricts].sort((a, b) => b.education.rate - a.education.rate);
 
     const processed = {
         incomeCumulativeChart: {
@@ -115,11 +147,11 @@ function processElectionData(data) {
         },
         incomeDistributionChart: {
             name: "各收入等級投票分布",
-            data: calculateDistributionData(sortedByIncome, 'income')
+            data: calculateDistributionData(sortedByIncome, 10)
         },
         educationDistributionChart: {
             name: "各教育程度投票分布",
-            data: calculateDistributionData(sortedByEducation, 'education')
+            data: calculateDistributionData(sortedByEducation, 10)
         }
     };
     
@@ -146,7 +178,7 @@ function calculateCumulativeData(sortedData, type) {
         return {
             percentage: percentage.toFixed(4),
             name: district.name,
-            value: type === 'income' ? district.income.mean : district.education,
+            value: type === 'income' ? district.income.median : district.education,
             income: district.income,
             education: district.education,
             originalData: {
@@ -168,12 +200,13 @@ function calculateCumulativeData(sortedData, type) {
     });
 }
 
-function calculateDistributionData(sortedData, type) {
+function calculateDistributionData(sortedData, groupNum=10) {
+    const perGroup = 100 / groupNum;
     return sortedData.reduce((acc, district, index) => {
-        const decile = Math.floor((index / sortedData.length) * 10);
+        const decile = Math.floor((index / sortedData.length) * groupNum);
         if (!acc[decile]) {
             acc[decile] = {
-                percentage: `${decile * 10}-${(decile + 1) * 10}%`,
+                percentage: `${(decile * perGroup).toFixed(1)}-${((decile + 1) * perGroup).toFixed(1)}%`,
                 blue: 0,
                 green: 0,
                 white: 0,
@@ -228,6 +261,10 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
             ...d,
             cumulativeData: {
                 ...d.cumulativeData,
+                total: cumulativeTotal,
+                blueTotal: cumulativeBlue,
+                greenTotal: cumulativeGreen,
+                whiteTotal: cumulativeWhite,
                 bluePercentage: (cumulativeBlue / cumulativeTotal) * 100,
                 greenPercentage: (cumulativeGreen / cumulativeTotal) * 100,
                 whitePercentage: (cumulativeWhite / cumulativeTotal) * 100,
@@ -237,7 +274,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
 
     // console.log(recalculatedData);
 
-    const margin = { top: 60, right: 80, bottom: 30, left: 30 };
+    const margin = { top: 60, right: 80, bottom: 60, left: 30 };
     const width = 800 - margin.left - margin.right;
     const height = 600 - margin.top - margin.bottom;
 
@@ -328,7 +365,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
         .style("pointer-events", "none")
         .style("z-index", "1000");  // 確保 tooltip 顯示在最上層
 
-    // 添加一個透明的覆蓋層來捕���滑鼠事件
+    // 添加一個透明的覆蓋層來捕捉滑鼠事件
     const overlay = svg.append("rect")
         .attr("class", "overlay")
         .attr("width", width)
@@ -366,18 +403,20 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
             const tooltipContent = `
                 <strong>${d.name}</strong><br/>
                 累積百分比: ${d.percentage}%<br/>
-                平均所得: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
-                大學以上比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
-                <hr/>
-                <strong>累積得票率：</strong><br/>
-                <span style="color: ${colors.blue}">${candidates.blue}</span>: ${d.cumulativeData.bluePercentage.toFixed(2)}%<br/>
-                <span style="color: ${colors.green}">${candidates.green}</span>: ${d.cumulativeData.greenPercentage.toFixed(2)}%<br/>
-                <span style="color: ${colors.white}">${candidates.white}</span>: ${d.cumulativeData.whitePercentage.toFixed(2)}%<br/>
+                所得中位數: ${(d.income.median / 10).toFixed(2)}萬元<br/>
+                所得平均數: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
+                大學以上人口比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
                 <hr/>
                 <strong>該地區得票率：</strong><br/>
                 <span style="color: ${colors.blue}">${candidates.blue}</span>: ${(d.originalData.blue / d.originalData.total * 100).toFixed(2)}%<br/>
                 <span style="color: ${colors.green}">${candidates.green}</span>: ${(d.originalData.green / d.originalData.total * 100).toFixed(2)}%<br/>
                 <span style="color: ${colors.white}">${candidates.white}</span>: ${(d.originalData.white / d.originalData.total * 100).toFixed(2)}%
+                <hr/>
+                <strong>累積得票率：</strong><br/>
+                <span style="color: ${colors.blue}">${candidates.blue}</span>: ${d.cumulativeData.blueTotal} / ${d.cumulativeData.total} = ${d.cumulativeData.bluePercentage.toFixed(2)}%<br/>
+                <span style="color: ${colors.green}">${candidates.green}</span>: ${d.cumulativeData.greenTotal} / ${d.cumulativeData.total} = ${d.cumulativeData.greenPercentage.toFixed(2)}%<br/>
+                <span style="color: ${colors.white}">${candidates.white}</span>: ${d.cumulativeData.whiteTotal} / ${d.cumulativeData.total} = ${d.cumulativeData.whitePercentage.toFixed(2)}%<br/>
+                <hr/>
             `;
             
             // 取得視窗尺寸
@@ -423,7 +462,7 @@ function drawBarChart(selector, chartData) {
     // Clear previous chart
     d3.select(selector).html('');
     
-    const margin = { top: 60, right: 80, bottom: 30, left: 30 };
+    const margin = { top: 60, right: 80, bottom: 60, left: 30 };
     const width = 800 - margin.left - margin.right;  // Increased width
     const height = 600 - margin.top - margin.bottom; // Increased height
 
@@ -435,7 +474,7 @@ function drawBarChart(selector, chartData) {
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Add title with larger font
+    // Add title
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", -margin.top / 2)
