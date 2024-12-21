@@ -6,9 +6,9 @@
 */
 
 const colors = {
-  blue: "#4D99FF",
-  green: "#00CC00",
-  white: "red"
+  blue: "#000095",
+  green: "#84CB98",
+  white: "#EE1C25FF"
 };
 
 const candidates = {
