@@ -84,6 +84,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   });
 
+  // Add click event listener for range update button
+  document.querySelector('#updateGroups').addEventListener('click', () => {
+    const groupNum = parseInt(document.querySelector('#groupsNum').value);
+    const selectedChart = document.querySelector('#chartSelector').value;
+    if (selectedChart === 'barChart1') {
+        processedDataGlobal.incomeDistributionChart.data = calculateDistributionData(sortedByIncome, groupNum);
+        drawBarChart("#barChart1", processedDataGlobal.incomeDistributionChart);
+    }
+    else if (selectedChart === 'barChart2') {
+        processedDataGlobal.educationDistributionChart.data = calculateDistributionData(sortedByEducation, groupNum);
+        drawBarChart("#barChart2", processedDataGlobal.educationDistributionChart);
+    }
+  });
+
   loadElectionData();
 });
 
