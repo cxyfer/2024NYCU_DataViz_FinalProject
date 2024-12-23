@@ -540,7 +540,7 @@ function drawCumulativeChart(selector, chartData, start=0, end=100) {
           // 更新 tooltip
           const tooltipContent = `
               <strong>${d.name}</strong><br/>
-              積百分比: ${d.percentage}%<br/>
+              累積百分比: ${d.percentage}%<br/>
               所得中位數: ${(d.income.median / 10).toFixed(2)}萬元<br/>
               所得平均數: ${(d.income.mean / 10).toFixed(2)}萬元<br/>
               大學以上人口比例: ${(d.education.rate * 100).toFixed(2)}%<br/>
